@@ -1,4 +1,12 @@
-# Adafruit NeoPixel Library [![Build Status](https://travis-ci.org/adafruit/Adafruit_NeoPixel.svg?branch=master)](https://travis-ci.org/adafruit/Adafruit_NeoPixel)
+# Adafruit NeoPixel-over-IIC Library [![Build Status](https://travis-ci.org/adafruit/Adafruit_NeoPixel.svg?branch=master)](https://travis-ci.org/adafruit/Adafruit_NeoPixel)
+
+## This is a dirty hack of the neopixel library to put 'protective' IIC commands before and after every transmission
+
+This allows you to use your IIC SDA pin as your neopixel pin, but protects other IIC devices from noticing. It does this because it triggers a start condition and then lowers clock - at which time data is assumed to transition and be invalid. During this time, it transmits the neopixel data. Then clock rises, and immediately goes to a stop condition. Well behaved IIC devices only 'see' a single bit of address transmitted, then the host gives up the bus.
+
+This is tested on a [microbadge](git.io/ubadge) with 6 neopixels. An SD11306 OLED was unaffected.
+
+## The remainder is the original documentation unchanged:
 
 Arduino library for controlling single-wire-based LED pixels and strip such as the [Adafruit 60 LED/meter Digital LED strip][strip], the [Adafruit FLORA RGB Smart Pixel][flora], the [Adafruit Breadboard-friendly RGB Smart Pixel][pixel], the [Adafruit NeoPixel Stick][stick], and the [Adafruit NeoPixel Shield][shield].
 
