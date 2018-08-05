@@ -31,7 +31,7 @@
   <http://www.gnu.org/licenses/>.
   -------------------------------------------------------------------------*/
 
-#include "Adafruit_NeoPixel.h"
+#include "Adafruit_NeoPixel_Over_IIC.h"
 
 #if defined(NRF52)
 #include "nrf.h"
@@ -42,12 +42,13 @@
 #endif
 
 // Constructor when length, pin and type are known at compile-time:
-Adafruit_NeoPixel::Adafruit_NeoPixel(uint16_t n, uint8_t p, neoPixelType t) :
+Adafruit_NeoPixel::Adafruit_NeoPixel(uint16_t n, uint8_t p, neoPixelType t, uint8_t c) :
   begun(false), brightness(0), pixels(NULL), endTime(0)  
 {
   updateType(t);
   updateLength(n);
   setPin(p);
+  scl=c;
 }
 
 // via Michael Vogt/neophob: empty constructor is used when strand length
@@ -71,7 +72,8 @@ Adafruit_NeoPixel::~Adafruit_NeoPixel() {
 
 void Adafruit_NeoPixel::begin(void) {
   if(pin >= 0) {
-    pinMode(pin, OUTPUT);
+//    pinMode(pin, OUTPUT);
+    pinMode(pin, INPUT);
     digitalWrite(pin, LOW);
   }
   begun = true;
@@ -133,6 +135,18 @@ void Adafruit_NeoPixel::show(void) {
   // endTime is a private member (rather than global var) so that multiple
   // instances on different pins can be quickly issued in succession (each
   // instance doesn't delay the next).
+
+// adding IIC setup here.
+// do a start condition, then lower clock, then output string data.
+  // start condition
+  if(pin >= 0) {
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, LOW);
+    pinMode(scl, OUTPUT);
+    digitalWrite(scl, LOW);
+  }
+
+
 
   // In order to make this code runtime-configurable to work with any pin,
   // SBI/CBI instructions are eschewed in favor of full PORT writes via the
@@ -1981,6 +1995,15 @@ void Adafruit_NeoPixel::show(void) {
   interrupts();
 #endif
 
+// adding IIC cleanup here
+// raise clock, then do a stop condition
+  if(pin >= 0) {
+    digitalWrite(scl, HIGH);
+    pinMode(scl, INPUT);
+    digitalWrite(pin, HIGH);
+    pinMode(pin, INPUT);
+  }
+  
   endTime = micros(); // Save EOD time for latch on next call
 }
 
@@ -1989,7 +2012,8 @@ void Adafruit_NeoPixel::setPin(uint8_t p) {
   if(begun && (pin >= 0)) pinMode(pin, INPUT);
     pin = p;
     if(begun) {
-      pinMode(p, OUTPUT);
+//      pinMode(p, OUTPUT);
+      pinMode(p, INPUT);
       digitalWrite(p, LOW);
     }
 #ifdef __AVR__

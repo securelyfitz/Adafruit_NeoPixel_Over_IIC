@@ -118,7 +118,7 @@ class Adafruit_NeoPixel {
  public:
 
   // Constructor: number of LEDs, pin number, LED type
-  Adafruit_NeoPixel(uint16_t n, uint8_t p=6, neoPixelType t=NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel(uint16_t n, uint8_t p=6, neoPixelType t=NEO_GRB + NEO_KHZ800,uint8_t s=2);
   Adafruit_NeoPixel(void);
   ~Adafruit_NeoPixel();
 
@@ -161,6 +161,7 @@ class Adafruit_NeoPixel {
     numLEDs,       // Number of RGB LEDs in strip
     numBytes;      // Size of 'pixels' buffer below (3 or 4 bytes/pixel)
   int8_t
+    scl,           // SCL pin to protect IIC from neopixel data
     pin;           // Output pin number (-1 if not yet set)
   uint8_t
     brightness,
